@@ -4,9 +4,9 @@
         <input type="text" class="form-control" placeholder="Wildcard">
         <table class="table table-striped table-hover">
             <tr>
-                <td class="caller"><a href="http://calls/log/sort/"><h3><strong>Caller</strong></h3></a></td>
+                <td><a href="http://calls/log/sort/caller/"><h3><strong>Caller</strong></h3></a></td>
                 <td><h3><strong>Event</strong></h3></td>
-                <td><h3><strong>Reciever</strong></h3></td>
+                <td><a href="http://calls/log/sort/reciever/"><h3><strong>Reciever</strong></h3></a></td>
                 <td><h3><strong>Timestamp</strong></h3></td>
             </tr>
             <?php foreach ($genData as $genVar): ?>

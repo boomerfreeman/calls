@@ -76,9 +76,9 @@ class Data extends CI_Model
         return $query->result();
     }
     
-    public function sortCaller($order)
+    public function sortNumber($number, $order)
     {
-        $query = $this->db->from('T_PHONE_RECORDS')->order_by('CALLER', $order);
+        $query = $this->db->from('T_PHONE_RECORDS')->order_by($number, $order);
         $query = $this->db->get();
         
         return $query->result();

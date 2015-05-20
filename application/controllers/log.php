@@ -33,7 +33,7 @@ class Log extends CI_Controller
         $this->load->view('templates/footer');
     }
     
-    public function sort()
+    public function sort($number)
     {
         session_start();
         
@@ -47,7 +47,7 @@ class Log extends CI_Controller
         
         $order = $_SESSION['order'];
         
-        $data['genData'] = $this->Data->sortCaller($order);
+        $data['genData'] = $this->Data->sortNumber($number, $order);
         $data['dbData'] = array('CALLER', 'RECORD_EVENT_ID', 'RECIEVER', 'RECORD_DATE');
         
         $data['title'] = 'Logs';
