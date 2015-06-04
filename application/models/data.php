@@ -8,7 +8,7 @@ class Data extends CI_Model
         $this->load->database();
     }
     
-    public function generate()
+    public function dbGen()
     {
         // Delete old table
         $this->db->query('DROP TABLE T_PHONE_RECORDS');
@@ -33,32 +33,31 @@ class Data extends CI_Model
         for ($i=0; $i < 5; $i++) {
             $caller = '5' . rand(1000000, 9999999);
             $reciever = '5' . rand(1000000, 9999999);
-            $time = date("Y-m-d H:i:s");
             
             // Caller picks up the phone:
-            $this->dbInsert('EVENT_PICK_UP', $time, $caller, $reciever);
+            $this->dbIns('EVENT_PICK_UP', date('Y-m-d H:i:s'), $caller, $reciever);
             
             $dial = $boolDial[rand(0, 1)];
             
             if ($dial === false) {
-                $this->dbInsert('EVENT_HANG_UP', $time, $caller, '');
+                $this->dbIns('EVENT_HANG_UP', date('Y-m-d H:i:s', strtotime('+3 seconds')), $caller, '');
             } else {
-                $this->dbInsert('EVENT_DIAL', $time, $caller, $reciever);
+                $this->dbIns('EVENT_DIAL', date('Y-m-d H:i:s', strtotime('+10 seconds')), $caller, $reciever);
                 
                 $answer = $boolAnswer[rand(0, 1)];
                 
                 if ($answer === false) {
-                    $this->dbInsert('EVENT_CALL_END', $time, $caller, $reciever);
+                    $this->dbIns('EVENT_CALL_END', date('Y-m-d H:i:s', strtotime('+2 minutes')), $caller, $reciever);
                 } else {
-                    $this->dbInsert('EVENT_CALL_ESTABLISHED', $time, $caller, $reciever);
-                    $this->dbInsert('EVENT_CALL_END', $time, $caller, $reciever);
+                    $this->dbIns('EVENT_CALL_ESTABLISHED', date('Y-m-d H:i:s', strtotime('+1 minutes')), $caller, $reciever);
+                    $this->dbIns('EVENT_CALL_END', date('Y-m-d H:i:s', strtotime('+15 minutes')), $caller, $reciever);
                 }
-                $this->dbInsert('EVENT_HANG_UP', $time, $caller, $reciever);
+                $this->dbIns('EVENT_HANG_UP', date('Y-m-d H:i:s', strtotime('+15 minutes +3 seconds')), $caller, $reciever);
             }
         }
     }
     
-    private function dbInsert($event, $time, $caller, $reciever)
+    private function dbIns($event, $time, $caller, $reciever)
     {
         $values = array (
             'RECORD_EVENT_ID' => $event,
@@ -68,19 +67,5 @@ class Data extends CI_Model
         );
         
         $this->db->insert('T_PHONE_RECORDS', $values);
-    }
-    
-    public function show()
-    {
-        $query = $this->db->get('T_PHONE_RECORDS');
-        return $query->result();
-    }
-    
-    public function sortNumber($number, $order)
-    {
-        $query = $this->db->from('T_PHONE_RECORDS')->order_by($number, $order);
-        $query = $this->db->get();
-        
-        return $query->result();
     }
 }

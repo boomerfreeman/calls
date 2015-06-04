@@ -2,58 +2,52 @@
 
 class Log extends CI_Controller
 {
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
+        $this->load->library('Datatables');
+        $this->load->library('Table');
+        $this->load->helper('url');
         $this->load->model('Data');
     }
     
-    public function index()
+    function index()
     {
-        // Start session:
-        session_start();
-//        unset($_SESSION);
-//        session_destroy();
-//        session_write_close();
+        $this->Data->dbGen();
         
-        if (! isset($_SESSION)) {
-            $this->Data->generate();
-        }
+        // Create table template:
+        $tmpl = array (
+            'table_open'            => '<table class="table table-striped table-hover" id="big_table">',
+            'heading_row_start'     => '<tr>',
+            'heading_row_end'       => '</tr>',
+            'heading_cell_start'    => '<th>',
+            'heading_cell_end'      => '</th>',
+            
+            'row_start'             => '<tr>',
+            'row_end'               => '</tr>',
+            'cell_start'            => '<td>',
+            'cell_end'              => '</td>',
+            
+            'table_close'           => '</table>'
+        );
         
-        echo session_id();
+        // Set table data:
+        $this->table->set_template($tmpl); 
         
-        $data['genData'] = $this->Data->show();
-        //$data['showData'] = array('Caller', 'Event', 'Reciever', 'Timestamp');
-        $data['dbData'] = array('CALLER', 'RECORD_EVENT_ID', 'RECIEVER', 'RECORD_DATE');
+        $this->table->set_heading('ID', 'Event', 'Timestamp', 'Caller', 'Reciever');
         
-        $data['title'] = 'Logs';
+        $data['title'] = 'Calls log';
+        // Generate table:
+        $data['table'] = $this->table->generate();
         
-        $this->load->view('templates/header', $data);
-        $this->load->view('pages/view', $data);
-        $this->load->view('templates/footer');
+        // Load view with $data array:
+        $this->load->view('view', $data);
     }
     
-    public function sort($number)
+    //function to handle callbacks
+    function datatable()
     {
-        session_start();
+        $this->datatables->select('RECORD_ID, RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER')->from('T_PHONE_RECORDS');
         
-        if (! isset($_SESSION['order'])) {
-            $_SESSION['order'] = 'ASC';
-        } elseif ($_SESSION['order'] == 'DESC') {
-            $_SESSION['order'] = 'ASC';
-        } else {
-            $_SESSION['order'] = 'DESC';
-        }
-        
-        $order = $_SESSION['order'];
-        
-        $data['genData'] = $this->Data->sortNumber($number, $order);
-        $data['dbData'] = array('CALLER', 'RECORD_EVENT_ID', 'RECIEVER', 'RECORD_DATE');
-        
-        $data['title'] = 'Logs';
-        
-        $this->load->view('templates/header', $data);
-        $this->load->view('pages/view', $data);
-        $this->load->view('templates/footer');
+        echo $this->datatables->generate();
     }
 }

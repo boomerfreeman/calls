@@ -16,7 +16,7 @@
 | environments.
 |
 */
-$config['base_url'] = 'http://calls/';
+$config['base_url'] = 'http://calls';
 
 /*
 |--------------------------------------------------------------------------

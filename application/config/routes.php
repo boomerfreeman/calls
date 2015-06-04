@@ -38,7 +38,6 @@
 |
 */
 
-$route['log/sort'] = 'log/$1';
 $route['default_controller'] = 'log';
 $route['404_override'] = '';
 
