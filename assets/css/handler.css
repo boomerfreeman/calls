@@ -1,0 +1,29 @@
+#langbar {
+    width: auto;
+    height: auto;
+    margin: 20px 10px 10px 10px;
+    text-align: right;
+}
+
+#heading {
+    text-align: center;
+    margin: 15px 0;
+}
+
+#log {
+    width: auto;
+    height: auto;
+    margin: 0;
+}
+
+div#pop-up {
+    display: none;
+    position: absolute;
+    width: auto;
+    padding: 20px 30px;
+    background: #F7FBFA;
+    color: #000000;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    font-size: 90%;
+}

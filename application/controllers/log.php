@@ -4,50 +4,65 @@ class Log extends CI_Controller
 {
     public function __construct() {
         parent::__construct();
-        $this->load->library('Datatables');
         $this->load->library('Table');
         $this->load->helper('url');
         $this->load->model('Data');
     }
     
-    function index()
+    public function index()
     {
-        $this->Data->dbGen();
+        // Check language settings:
+        if ( ! isset ($_COOKIE['lang'])) {
+            setcookie('lang', 'en', time() + (86400 * 30), "/");
+            $lang = 'en';
+        } else {
+            $lang = $_COOKIE['lang'];
+        }
         
-        // Create table template:
-        $tmpl = array (
-            'table_open'            => '<table class="table table-striped table-hover" id="big_table">',
-            'heading_row_start'     => '<tr>',
-            'heading_row_end'       => '</tr>',
-            'heading_cell_start'    => '<th>',
-            'heading_cell_end'      => '</th>',
-            
-            'row_start'             => '<tr>',
-            'row_end'               => '</tr>',
-            'cell_start'            => '<td>',
-            'cell_end'              => '</td>',
-            
-            'table_close'           => '</table>'
-        );
+        // Load language file:
+        $this->lang->load('text', $lang);
+        
+        // Generate database data:
+        //$this->Data->dbGen();
+        
+        // Create table template:        
+        $data['title'] = $this->lang->line('title');
+        $data['heading'] = $this->lang->line('heading');
+        
+        $table_id           =   $this->lang->line('table_id');
+        $table_event        =   $this->lang->line('table_event');
+        $table_timestamp    =   $this->lang->line('table_timestamp');
+        $table_caller       =   $this->lang->line('table_caller');
+        $table_reciever     =   $this->lang->line('table_reciever');
         
         // Set table data:
-        $this->table->set_template($tmpl); 
+        $this->table->set_heading($table_id, $table_event, $table_timestamp, $table_caller, $table_reciever);
+        $this->table->set_template(array(
+            'table_open'    =>      '<table class="table table-striped table-hover" id="log">',
+            'row_start'     =>      '<tr id="call">',
+            'row_alt_start' =>      '<tr id="call">'));
         
-        $this->table->set_heading('ID', 'Event', 'Timestamp', 'Caller', 'Reciever');
-        
-        $data['title'] = 'Calls log';
         // Generate table:
-        $data['table'] = $this->table->generate();
+        $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS");
+        $data['table'] = $this->table->generate($query);
         
         // Load view with $data array:
         $this->load->view('view', $data);
     }
     
-    //function to handle callbacks
-    function datatable()
+    // Set russian language:
+    public function ru()
     {
-        $this->datatables->select('RECORD_ID, RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER')->from('T_PHONE_RECORDS');
-        
-        echo $this->datatables->generate();
+        setcookie('lang', 'ru', time() + (86400 * 30), "/");
+        $this->lang->load('text', 'ru');
+        redirect(base_url());
+    }
+    
+    // Set english language:
+    public function en()
+    {
+        setcookie('lang', 'en', time() + (86400 * 30), "/");
+        $this->lang->load('text', 'en');
+        redirect(base_url());
     }
 }

@@ -8,12 +8,13 @@ class Data extends CI_Model
         $this->load->database();
     }
     
+    // Generate new data for the table:
     public function dbGen()
     {
-        // Delete old table
+        // Delete old table:
         $this->db->query('DROP TABLE T_PHONE_RECORDS');
         
-        // Create new table
+        // Create new table:
         $this->db->query(
                 'CREATE TABLE T_PHONE_RECORDS (
                     RECORD_ID int(11) NOT NULL AUTO_INCREMENT,
