@@ -22,8 +22,8 @@ class Log extends CI_Controller
         // Load language file:
         $this->lang->load('text', $lang);
         
-        // Generate database data:
-        //$this->Data->dbGen();
+        // Generate table data:
+        $this->Data->tableGenerate();
         
         // Create table template:        
         $data['title'] = $this->lang->line('title');
@@ -35,16 +35,20 @@ class Log extends CI_Controller
         $table_caller       =   $this->lang->line('table_caller');
         $table_reciever     =   $this->lang->line('table_reciever');
         
-        // Set table data:
+        // Pre-set main table configuration data:
         $this->table->set_heading($table_id, $table_event, $table_timestamp, $table_caller, $table_reciever);
         $this->table->set_template(array(
-            'table_open'    =>      '<table class="table table-striped table-hover" id="log">',
-            'row_start'     =>      '<tr id="call">',
-            'row_alt_start' =>      '<tr id="call">'));
+            'table_open'    =>      '<table class="table table-striped table-hover" id="log">'));
         
-        // Generate table:
-        $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS");
+        // Generate table with first 10 rows:
+        $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS LIMIT 0,10");
         $data['table'] = $this->table->generate($query);
+        
+        // Pre-set modal window configuration data:
+        $this->table->set_heading($table_id, $table_event, $table_timestamp, $table_caller, $table_reciever);
+        $this->table->set_template(array(
+            'table_open'    =>      '<table class="table table-striped table-hover" id="modal">'));
+        $data['modal'] = $this->table->generate();
         
         // Load view with $data array:
         $this->load->view('view', $data);

@@ -15,20 +15,47 @@
         <script>
             $(document).ready(function() {
                 
-                // Delete #log datatable to make this working:                
-                $("#modal").dialog({ autoOpen: false });
-                $("tr#call").click(function() {
-                    $("#modal").dialog("open");
-                });
-                
+                // Main log table:
                 $('#log').dataTable({
                     "processing": true,
                     "serverSide": true,
                     "paging": true,
+                    "emptyTable": "No data found!",
                     "ajax": {
-                        "url": "<?=base_url('index.php/serverside/')?>",
+                        "url": "<?=base_url('index.php/serverside/datatables/')?>",
                         "type": "GET"
                     }
+                });
+
+                // Hide modal window at start:
+                $("#modal").dialog({autoOpen: false});
+                
+                // If table row is clicked:
+                $("#log tbody").click(function() {
+                
+                    // Take caller number:
+                    var number = $('td', this).eq(3).text();
+                    
+                    $("#modal").dataTable({
+                        "destroy": true,
+                        "paging": false,
+                        "ajax": "http://calls/serverside/modal/?caller=" + number
+                    });
+                    
+                    // Set modal window options:
+                    $("#modal").dialog("option", {
+                        "minHeight": 300,
+                        "minWidth": 750,
+                        "position": {
+                            my: "top-25", at: "center", of: "#heading"},
+                        "title": "Modal log table for specified call"
+                    });
+                    
+                    // Open modal window:
+                    $("#modal").dialog("open");
+                    $(":button").click(function() {
+                        $("#modal").dialog("destroy");
+                    });
                 });
             });
         </script>
@@ -39,13 +66,7 @@
             <a href="<?=$_SERVER['SCRIPT_NAME'] . '/log/en/'?>" class="btn btn-primary">EN</a>
         </div>
         <h1 id="heading"><?=$heading . date("H:i, j.m.Y")?></h1>
-        <?=$table?>
-        <div id="pop-up">
-            <h3>Pop-up div Successfully Displayed</h3>
-            <p>This div only appears when the trigger link is hovered over. Otherwise it is hidden from view.</p>
-        </div>
-<!--        <div id="modal" title="Modal window for call #">
-            <?=$table?>
-        </div>-->
+        <div title="Main log table"><?=$table?></div>
+        <div><?=$modal?></div>
     </body>
 </html>
