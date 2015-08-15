@@ -20,7 +20,6 @@
                     "processing": true,
                     "serverSide": true,
                     "paging": true,
-                    "emptyTable": "No data found!",
                     "ajax": {
                         "url": "<?=base_url('index.php/serverside/datatables/')?>",
                         "type": "GET"
@@ -31,10 +30,10 @@
                 $("#modal").dialog({autoOpen: false});
                 
                 // If table row is clicked:
-                $("#log tbody").click(function() {
-                
+                $("#log tbody").on('click', 'tr', function () {
+                    
                     // Take caller number:
-                    var number = $('td', this).eq(3).text();
+                    var number = $(this).find("td").eq(3).html();
                     
                     $("#modal").dataTable({
                         "destroy": true,
@@ -47,7 +46,10 @@
                         "minHeight": 300,
                         "minWidth": 750,
                         "position": {
-                            my: "top-25", at: "center", of: "#heading"},
+                            my: "top-25",
+                            at: "center",
+                            of: "#heading"
+                        },
                         "title": "Modal log table for specified call"
                     });
                     
