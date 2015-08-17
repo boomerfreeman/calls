@@ -35,6 +35,7 @@
                     // Take caller number:
                     var number = $(this).find("td").eq(3).html();
                     
+                    // Get information about specified call via AJAX:
                     $("#modal").dataTable({
                         "destroy": true,
                         "paging": false,
@@ -55,9 +56,6 @@
                     
                     // Open modal window:
                     $("#modal").dialog("open");
-                    $(":button").click(function() {
-                        $("#modal").dialog("destroy");
-                    });
                 });
             });
         </script>
