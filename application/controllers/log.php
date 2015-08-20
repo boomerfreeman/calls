@@ -11,12 +11,15 @@ class Log extends CI_Controller
     
     public function index()
     {
+        // Set XSS filter:
+        $lang_cookie = $this->security->xss_clean($_COOKIE['lang']);
+        
         // Check language settings:
-        if ( ! isset ($_COOKIE['lang'])) {
+        if ( ! isset ($lang_cookie)) {
             setcookie('lang', 'en', time() + (86400 * 30), "/");
             $lang = 'en';
         } else {
-            $lang = $_COOKIE['lang'];
+            $lang = $lang_cookie;
         }
         
         // Load language file:
@@ -50,7 +53,7 @@ class Log extends CI_Controller
             'table_open'    =>      '<table class="table table-striped table-hover" id="modal">'));
         $data['modal'] = $this->table->generate();
         
-        // Load view with $data array:
+        // Load view:
         $this->load->view('view', $data);
     }
     

@@ -16,21 +16,18 @@
             $(document).ready(function() {
                 
                 // Main log table:
-                $('#log').dataTable({
+                $("#log").dataTable({
                     "processing": true,
                     "serverSide": true,
                     "paging": true,
-                    "ajax": {
-                        "url": "<?=base_url('index.php/serverside/datatables/')?>",
-                        "type": "GET"
-                    }
+                    "ajax": "<?=base_url("serverside/datatables/")?>"
                 });
 
                 // Hide modal window at start:
                 $("#modal").dialog({autoOpen: false});
                 
                 // If table row is clicked:
-                $("#log tbody").on('click', 'tr', function () {
+                $("#log tbody").on("click", "tr", function () {
                     
                     // Take caller number:
                     var number = $(this).find("td").eq(3).html();
@@ -39,7 +36,7 @@
                     $("#modal").dataTable({
                         "destroy": true,
                         "paging": false,
-                        "ajax": "http://calls/serverside/modal/?caller=" + number
+                        "ajax": "<?=base_url("serverside/modal/?caller=")?>" + number
                     });
                     
                     // Set modal window options:
@@ -51,7 +48,7 @@
                             at: "center",
                             of: "#heading"
                         },
-                        "title": "Modal log table for specified call"
+                        "title": "Caller " + number + " log:"
                     });
                     
                     // Open modal window:

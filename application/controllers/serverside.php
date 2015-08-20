@@ -95,7 +95,10 @@ class Serverside extends CI_Controller
         // Recieve caller number:
         $caller = htmlspecialchars($_GET['caller']);
         
-        $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS WHERE CALLER = $caller");
+        // Get log data with calls:
+        $sql = "SELECT * FROM T_PHONE_RECORDS WHERE CALLER = ?";
+        $query = $this->db->query($sql, array($caller));
+        $rows = $query->num_rows;
         
         foreach ($query->result() as $row)
         {
@@ -108,8 +111,23 @@ class Serverside extends CI_Controller
             $data[] = array($record_id, $event_id, $record_date, $caller, $reciever);
         }
         
+        switch ($rows) {
+            case '2':
+                $title = 'Cancelled call'; break;
+            case '4':
+                $title = 'Cancelled call'; break;
+            case '5':
+                $title = 'Regular call'; break;
+            default:
+                $title = 'Cancelled call';
+        }
+        
         // Create json object:
-        $json = array("data" => $data);
+        $json = array(
+            "title" => $caller . ': ' . $title,
+            //"recordsTotal" => $rows,
+            "data" => $data
+        );
         
         echo json_encode($json);
         exit;

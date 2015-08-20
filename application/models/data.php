@@ -60,13 +60,7 @@ class Data extends CI_Model
     
     private function tableInsert($event, $time, $caller, $reciever)
     {
-        $values = array (
-            'RECORD_EVENT_ID' => $event,
-            'RECORD_DATE' => $time,
-            'CALLER' => $caller,
-            'RECIEVER' => $reciever
-        );
-        
-        $this->db->insert('T_PHONE_RECORDS', $values);
+        $sql = "INSERT INTO T_PHONE_RECORDS (RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER) VALUES (?, ?, ?, ?)";
+        $this->db->query($sql, array($event, $time, $caller, $reciever));
     }
 }
