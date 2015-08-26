@@ -41,10 +41,17 @@ class Serverside extends CI_Controller
         if ( ! empty ($search))
         {
             // SQL query to search number:
-            $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS WHERE RECORD_ID LIKE '%$search%' OR RECORD_EVENT_ID LIKE '%$search%' OR RECORD_DATE LIKE '%$search%' OR CALLER LIKE '%$search%' OR RECIEVER LIKE '%$search%'");
+            $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS 
+                                       WHERE RECORD_ID LIKE '%$search%' 
+                                       OR RECORD_EVENT_ID LIKE '%$search%' 
+                                       OR RECORD_DATE LIKE '%$search%' 
+                                       OR CALLER LIKE '%$search%' 
+                                       OR RECIEVER LIKE '%$search%'");
         } else {
             // SQL query to set order:
-            $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS ORDER BY $column $order LIMIT $start,$length");
+            $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS 
+                                       ORDER BY $column $order 
+                                       LIMIT $start,$length");
         }
         
         $limit = $query->num_rows;
@@ -96,7 +103,9 @@ class Serverside extends CI_Controller
         $reciever = htmlspecialchars($_GET['reciever']);
         
         // Get log data with calls:
-        $sql = "SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE FROM T_PHONE_RECORDS WHERE CALLER = ? AND RECIEVER = ?";
+        $sql = "SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
+                FROM T_PHONE_RECORDS 
+                WHERE CALLER = ? AND RECIEVER = ?";
         $query = $this->db->query($sql, array($caller, $reciever));
         $rows = $query->num_rows;
         

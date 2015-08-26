@@ -17,10 +17,10 @@
                 
                 // Main log table:
                 $("#log").dataTable({
-                    "processing": true,
-                    "serverSide": true,
-                    "paging": true,
-                    "ajax": "<?=base_url("serverside/datatables/")?>"
+                    "processing":   true,
+                    "serverSide":   true,
+                    "paging":       true,
+                    "ajax":         "<?=base_url("serverside/datatables/")?>"
                 });
 
                 // Hide modal window at start:
@@ -35,21 +35,23 @@
                     
                     // Get information about specified call via AJAX:
                     $("#modal").dataTable({
-                        "destroy": true,
-                        "paging": false,
-                        "ajax": "<?=base_url("serverside/modal/?caller=")?>" + caller + "&reciever=" + reciever,
+                        "sort":     false,
+                        "filter":   false,
+                        "destroy":  true,
+                        "paging":   false,
+                        "ajax":     "<?=base_url("serverside/modal/?caller=")?>" + caller + "&reciever=" + reciever,
                     });
                     
                     // Set modal window options:
                     $("#modal").dialog("option", {
-                        "minHeight": 300,
-                        "minWidth": 800,
+                        "minHeight":    300,
+                        "minWidth":     950,
                         "position": {
                             my: "top-25",
                             at: "center",
                             of: "#heading"
                         },
-                        "title": "Caller " + caller + " log:"
+                        "title":        "Caller " + caller + " log:"
                     });
                     
                     // Open modal window:

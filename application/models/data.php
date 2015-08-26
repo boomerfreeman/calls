@@ -31,7 +31,7 @@ class Data extends CI_Model
         $boolAnswer = array (true, false);
         
         // Generate data for 5 different numbers:
-        for ($i=0; $i < 50; $i++) {
+        for ($i=0; $i < 500; $i++) {
             $caller = '555555' . rand(10, 99);
             $reciever = '555555' . rand(10, 99);
             
@@ -60,7 +60,8 @@ class Data extends CI_Model
     
     private function tableInsert($event, $time, $caller, $reciever)
     {
-        $sql = "INSERT INTO T_PHONE_RECORDS (RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO T_PHONE_RECORDS (RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER) 
+                VALUES (?, ?, ?, ?)";
         $this->db->query($sql, array($event, $time, $caller, $reciever));
     }
 }
