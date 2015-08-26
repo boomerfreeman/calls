@@ -30,25 +30,26 @@
                 $("#log tbody").on("click", "tr", function () {
                     
                     // Take caller number:
-                    var number = $(this).find("td").eq(3).html();
+                    var caller = $(this).find("td").eq(0).html();
+                    var reciever = $(this).find("td").eq(2).html();
                     
                     // Get information about specified call via AJAX:
                     $("#modal").dataTable({
                         "destroy": true,
                         "paging": false,
-                        "ajax": "<?=base_url("serverside/modal/?caller=")?>" + number
+                        "ajax": "<?=base_url("serverside/modal/?caller=")?>" + caller + "&reciever=" + reciever,
                     });
                     
                     // Set modal window options:
                     $("#modal").dialog("option", {
                         "minHeight": 300,
-                        "minWidth": 750,
+                        "minWidth": 800,
                         "position": {
                             my: "top-25",
                             at: "center",
                             of: "#heading"
                         },
-                        "title": "Caller " + number + " log:"
+                        "title": "Caller " + caller + " log:"
                     });
                     
                     // Open modal window:

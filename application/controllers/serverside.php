@@ -54,13 +54,12 @@ class Serverside extends CI_Controller
         {
             foreach ($query->result() as $row)
             {
-                $record_id   = $row->RECORD_ID;
-                $event_id    = $row->RECORD_EVENT_ID;
-                $record_date = $row->RECORD_DATE;
-                $caller      = $row->CALLER;
-                $reciever    = $row->RECIEVER;
+                $caller         = $row->CALLER;
+                $event_id       = $row->RECORD_EVENT_ID;
+                $reciever       = $row->RECIEVER;
+                $record_date    = $row->RECORD_DATE;
                 
-                $data[] = array($record_id, $event_id, $record_date, $caller, $reciever);
+                $data[] = array($caller, $event_id, $reciever, $record_date);
             }
             
             $json = array(
@@ -92,42 +91,41 @@ class Serverside extends CI_Controller
     // A method that response for modal window operations:
     public function modal()
     {
-        // Recieve caller number:
+        // Recieve caller and reciever numbers:
         $caller = htmlspecialchars($_GET['caller']);
+        $reciever = htmlspecialchars($_GET['reciever']);
         
         // Get log data with calls:
-        $sql = "SELECT * FROM T_PHONE_RECORDS WHERE CALLER = ?";
-        $query = $this->db->query($sql, array($caller));
+        $sql = "SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE FROM T_PHONE_RECORDS WHERE CALLER = ? AND RECIEVER = ?";
+        $query = $this->db->query($sql, array($caller, $reciever));
         $rows = $query->num_rows;
+        
+        switch ($rows) {
+            case '1':
+                $status = 'Cancelled call'; break;
+            case '2':
+                $status = 'Cancelled call'; break;
+            case '4':
+                $status = 'Non-dialled call'; break;
+            case '5':
+                $status = 'Regular call'; break;
+            default:
+                $status = 'Cancelled call';
+        }
         
         foreach ($query->result() as $row)
         {
-            $record_id   = $row->RECORD_ID;
-            $event_id    = $row->RECORD_EVENT_ID;
-            $record_date = $row->RECORD_DATE;
-            $caller      = $row->CALLER;
-            $reciever    = $row->RECIEVER;
+            $title          = "$caller: $status";
+            $caller         = $row->CALLER;
+            $event_id       = $row->RECORD_EVENT_ID;
+            $reciever       = $row->RECIEVER;
+            $record_date    = $row->RECORD_DATE;
             
-            $data[] = array($record_id, $event_id, $record_date, $caller, $reciever);
-        }
-        
-        switch ($rows) {
-            case '2':
-                $title = 'Cancelled call'; break;
-            case '4':
-                $title = 'Cancelled call'; break;
-            case '5':
-                $title = 'Regular call'; break;
-            default:
-                $title = 'Cancelled call';
+            $data[] = array($title, $caller, $event_id, $reciever, $record_date);
         }
         
         // Create json object:
-        $json = array(
-            "title" => $caller . ': ' . $title,
-            //"recordsTotal" => $rows,
-            "data" => $data
-        );
+        $json = array("data" => $data);
         
         echo json_encode($json);
         exit;

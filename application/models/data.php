@@ -31,9 +31,9 @@ class Data extends CI_Model
         $boolAnswer = array (true, false);
         
         // Generate data for 5 different numbers:
-        for ($i=0; $i < 5; $i++) {
-            $caller = '5' . rand(1000000, 9999999);
-            $reciever = '5' . rand(1000000, 9999999);
+        for ($i=0; $i < 50; $i++) {
+            $caller = '555555' . rand(10, 99);
+            $reciever = '555555' . rand(10, 99);
             
             // Caller picks up the phone:
             $this->tableInsert('EVENT_PICK_UP', date('Y-m-d H:i:s'), $caller, $reciever);
