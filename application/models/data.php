@@ -30,8 +30,8 @@ class Data extends CI_Model
         $boolDial = array (true, false);
         $boolAnswer = array (true, false);
         
-        // Generate data for 5 different numbers:
-        for ($i=0; $i < 500; $i++) {
+        // Generate data for 100 different numbers:
+        for ($i=0; $i < 100; $i++) {
             $caller = '555555' . rand(10, 99);
             $reciever = '555555' . rand(10, 99);
             

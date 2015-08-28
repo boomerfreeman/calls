@@ -98,44 +98,94 @@ class Serverside extends CI_Controller
     // A method that response for modal window operations:
     public function modal()
     {
-        // Recieve caller and reciever numbers:
-        $caller = htmlspecialchars($_GET['caller']);
-        $reciever = htmlspecialchars($_GET['reciever']);
+        // Retrieve caller and reciever numbers:
+        $table_caller = htmlspecialchars($_GET['caller']);
+        $table_reciever = htmlspecialchars($_GET['reciever']);
         
-        // Get log data with calls:
+        // Get call log for the caller and check how much calls were made:
+        $sql = "SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
+                FROM T_PHONE_RECORDS 
+                WHERE CALLER = ? AND RECORD_EVENT_ID = 'EVENT_PICK_UP'";
+        
+        $query = $this->db->query($sql, $table_caller);
+        $call_num = $query->num_rows;
+        
+        // If caller made more than one call:
+        if ($call_num > 1) {
+            
+            // Get data for every call:
+            foreach ($query->result() as $row)
+            {
+                $call_data = $this->getCallData($table_caller, $row->RECIEVER);
+                
+                $data[] = array($call_data[0], $row->CALLER, $row->RECORD_EVENT_ID, $row->RECIEVER, $row->RECORD_DATE);
+            }
+            
+            // Create data and send json object:
+            $this->sendJSON($data);
+            
+        } else {
+            
+            // Otherwise get info about the call:
+            $sql = "SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
+                    FROM T_PHONE_RECORDS 
+                    WHERE CALLER = ? AND RECIEVER = ?";
+        
+            $query = $this->db->query($sql, array($table_caller, $table_reciever));
+            
+            // Define call resolution for modal window:
+            $call_num = $query->num_rows;
+            
+            $title = $this->callResolution($call_num, $table_caller);
+            
+            // Collect call data:
+            $row = $query->row();
+            
+            $data[] = array($title, $row->CALLER, $row->RECORD_EVENT_ID, $row->RECIEVER, $row->RECORD_DATE);
+            
+            // Send json object:
+            $this->sendJSON($data);
+        }
+    }
+    
+    // Get call data function:
+    private function getCallData($table_caller, $table_reciever)
+    {
         $sql = "SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
                 FROM T_PHONE_RECORDS 
                 WHERE CALLER = ? AND RECIEVER = ?";
-        $query = $this->db->query($sql, array($caller, $reciever));
-        $rows = $query->num_rows;
         
-        switch ($rows) {
-            case '1':
-                $status = 'Cancelled call'; break;
+        $query = $this->db->query($sql, array($table_caller, $table_reciever));
+        $call_num = $query->num_rows;
+        
+        // Set call resolution for every call:
+        $title = $this->callResolution($call_num, $table_caller);
+        
+        $result = array($title, $query);
+        return $result;
+    }
+    
+    // Call resolution function:
+    private function callResolution($num, $caller)
+    {
+        switch ($num) {
             case '2':
-                $status = 'Cancelled call'; break;
+                $title = "$caller: Cancelled call"; break;
             case '4':
-                $status = 'Non-dialled call'; break;
+                $title = "$caller: Non-dialled call"; break;
             case '5':
-                $status = 'Regular call'; break;
+                $title = "$caller: Regular call"; break;
             default:
-                $status = 'Cancelled call';
+                $title = "$caller: Cancelled call";
         }
         
-        foreach ($query->result() as $row)
-        {
-            $title          = "$caller: $status";
-            $caller         = $row->CALLER;
-            $event_id       = $row->RECORD_EVENT_ID;
-            $reciever       = $row->RECIEVER;
-            $record_date    = $row->RECORD_DATE;
-            
-            $data[] = array($title, $caller, $event_id, $reciever, $record_date);
-        }
-        
-        // Create json object:
+        return $title;
+    }
+    
+    // Send JSON object function:
+    private function sendJSON($data)
+    {
         $json = array("data" => $data);
-        
         echo json_encode($json);
         exit;
     }

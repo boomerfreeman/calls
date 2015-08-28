@@ -45,7 +45,7 @@
                     // Set modal window options:
                     $("#modal").dialog("option", {
                         "minHeight":    300,
-                        "minWidth":     950,
+                        "minWidth":     1000,
                         "position": {
                             my: "top-25",
                             at: "center",
