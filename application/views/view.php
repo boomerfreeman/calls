@@ -31,7 +31,6 @@
                     
                     // Take caller number:
                     var caller = $(this).find("td").eq(0).html();
-                    var reciever = $(this).find("td").eq(2).html();
                     
                     // Get information about specified call via AJAX:
                     $("#modal").dataTable({
@@ -39,7 +38,7 @@
                         "filter":   false,
                         "destroy":  true,
                         "paging":   false,
-                        "ajax":     "<?=base_url("serverside/modal/?caller=")?>" + caller + "&reciever=" + reciever,
+                        "ajax":     "<?=base_url("serverside/modal/?caller=")?>" + caller,
                     });
                     
                     // Set modal window options:

@@ -23,7 +23,7 @@ class Log extends CI_Controller
         $this->lang->load('text', $lang);
         
         // Generate table data:
-        //$this->Data->tableGenerate();
+        $this->Data->tableGenerate();
         
         // Create table template:        
         $data['title'] = $this->lang->line('title');
