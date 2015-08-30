@@ -6,6 +6,7 @@ class Log extends CI_Controller
         parent::__construct();
         $this->load->library('Table');
         $this->load->helper('url');
+        $this->load->helper('date');
         $this->load->model('Data');
     }
     
@@ -22,8 +23,8 @@ class Log extends CI_Controller
         // Load language file:
         $this->lang->load('text', $lang);
         
-        // Generate table data:
-        $this->Data->tableGenerate();
+        // Generate table data for 100 different numbers:
+        $this->Data->genTable(100);
         
         // Create table template:        
         $data['title'] = $this->lang->line('title');
@@ -34,8 +35,9 @@ class Log extends CI_Controller
         $table_caller       =   $this->lang->line('table_caller');
         $table_reciever     =   $this->lang->line('table_reciever');
         $modal_title        =   $this->lang->line('modal_title');
+        $modal_duration     =   $this->lang->line('modal_duration');
         
-        // Pre-set main table configuration data:
+        // Pre-set main table configuration:
         $this->table->set_heading($table_caller, $table_event, $table_reciever, $table_timestamp);
         $this->table->set_template(array(
             'table_open'    =>      '<table class="table table-striped table-hover" id="log">'));
@@ -45,11 +47,19 @@ class Log extends CI_Controller
                                    FROM T_PHONE_RECORDS LIMIT 0,10");
         $data['table'] = $this->table->generate($query);
         
-        // Pre-set modal window configuration data:
+        //$this->setWinConfig();
+        
+        // Set modal window configuration and generate data:
         $this->table->set_heading($modal_title, $table_caller, $table_event, $table_reciever, $table_timestamp);
         $this->table->set_template(array(
             'table_open'    =>      '<table class="table table-striped table-hover" id="modal">'));
         $data['modal'] = $this->table->generate();
+        
+        // Set extended modal window configuration and generate data:
+        $this->table->set_heading($table_timestamp, $modal_duration, $table_reciever, $modal_title);
+        $this->table->set_template(array(
+            'table_open'    =>      '<table class="table table-striped table-hover" id="extend">'));
+        $data['extend'] = $this->table->generate();
         
         // Load view:
         $this->load->view('view', $data);

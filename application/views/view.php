@@ -20,41 +20,71 @@
                     "processing":   true,
                     "serverSide":   true,
                     "paging":       true,
-                    "ajax":         "<?=base_url("serverside/datatables/")?>"
+                    "ajax":         "<?=base_url("serverside/mainLog/")?>" + "/"
                 });
-
-                // Hide modal window at start:
+                
+                // Hide modal windows at start:
                 $("#modal").dialog({autoOpen: false});
+                $("#extend").dialog({autoOpen: false});
                 
                 // If table row is clicked:
                 $("#log tbody").on("click", "tr", function () {
                     
-                    // Take caller number:
-                    var caller = $(this).find("td").eq(0).html();
+                    // Get caller and reciever numbers:
+                    var log_caller = $(this).find("td").eq(0).html();
+                    var log_reciever = $(this).find("td").eq(2).html();
                     
-                    // Get information about specified call via AJAX:
+                    if (log_reciever.length === 0) {
+                        log_reciever = 'null';
+                    }
+                    
+                    // Fill windows with data via AJAX:
                     $("#modal").dataTable({
                         "sort":     false,
                         "filter":   false,
                         "destroy":  true,
                         "paging":   false,
-                        "ajax":     "<?=base_url("serverside/modal/?caller=")?>" + caller,
+                        "ajax":     "<?=base_url('serverside/modalLog')?>" + "/" + log_caller + "/" + log_reciever + "/"
                     });
                     
-                    // Set modal window options:
+                    $("#extend").dataTable({
+                        "sort":     false,
+                        "filter":   false,
+                        "destroy":  true,
+                        "paging":   false,
+                        "ajax":     "<?=base_url('serverside/extendLog')?>" + "/" + log_caller + "/" + log_reciever + "/"
+                    });
+                    
+                    // Set modal windows options:
                     $("#modal").dialog("option", {
-                        "minHeight":    300,
-                        "minWidth":     1000,
+                        "minHeight": 300,
+                        "minWidth": 700,
+                        "maxHeight": 500,
+                        "maxWidth": 700,
                         "position": {
                             my: "top-25",
-                            at: "center",
+                            at: "left",
                             of: "#heading"
                         },
-                        "title":        "Caller " + caller + " log:"
+                        "title": "Number " + log_caller + " call to " + log_reciever
                     });
                     
-                    // Open modal window:
+                    $("#extend").dialog("option", {
+                        "minHeight": 300,
+                        "minWidth": 650,
+                        "maxHeight": 500,
+                        "maxWidth": 700,
+                        "position": {
+                            my: "top-25",
+                            at: "right",
+                            of: "#heading"
+                        },
+                        "title": "All calls by number " + log_caller
+                    });
+                    
+                    // Open modal windows:
                     $("#modal").dialog("open");
+                    $("#extend").dialog("open");
                 });
             });
         </script>
@@ -67,5 +97,6 @@
         <h1 id="heading"><?=$heading . date("H:i, j.m.Y")?></h1>
         <div title="Main log table"><?=$table?></div>
         <div><?=$modal?></div>
+        <div><?=$extend?></div>
     </body>
 </html>

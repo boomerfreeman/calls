@@ -9,7 +9,7 @@ class Data extends CI_Model
     }
     
     // Generate new data for the table:
-    public function tableGenerate()
+    public function genTable($quantity)
     {
         // Delete old table:
         $this->db->query('DROP TABLE T_PHONE_RECORDS');
@@ -27,37 +27,65 @@ class Data extends CI_Model
                 ) ENGINE=InnoDB'
         );
         
+        // Generate logs:
+        $this->genLogs($quantity);
+    }
+    
+    // Main log generation method:
+    private function genLogs($num)
+    {
+        // Arrays for randomization calling logs:
         $boolDial = array (true, false);
         $boolAnswer = array (true, false);
         
         // Generate data for 100 different numbers:
-        for ($i=0; $i < 100; $i++) {
+        for ($i=0; $i < $num; $i++) {
+            
+            // Randomize caller, reciever numbers and date:
             $caller = '555555' . rand(10, 99);
             $reciever = '555555' . rand(10, 99);
+            $time = 'Y-m-' .rand(1, 30). ' ' .rand(1, 24). ':' .rand(0, 60). ':' . rand(0, 60);
             
             // Caller picks up the phone:
-            $this->tableInsert('EVENT_PICK_UP', date('Y-m-d H:i:s'), $caller, $reciever);
+            $this->tableInsert('EVENT_PICK_UP', date($time), $caller, $reciever);
             
+            // Randomize dial event:
             $dial = $boolDial[rand(0, 1)];
             
+            // Caller tries to dial with reciever:
             if ($dial === false) {
-                $this->tableInsert('EVENT_HANG_UP', date('Y-m-d H:i:s', strtotime('+3 seconds')), $caller, '');
-            } else {
-                $this->tableInsert('EVENT_DIAL', date('Y-m-d H:i:s', strtotime('+10 seconds')), $caller, $reciever);
                 
+                // If call is not dialled, send proper event without reciever number:
+                $this->tableInsert('EVENT_HANG_UP', date($time, strtotime('+'.rand(10, 20).' seconds')), $caller, '');
+                
+            } else {
+                
+                // Otherwise dialling is started:
+                $this->tableInsert('EVENT_DIAL', date($time, strtotime('+'.rand(10, 20).' seconds')), $caller, $reciever);
+                
+                // Randomize answer event:
                 $answer = $boolAnswer[rand(0, 1)];
                 
+                // Caller waits for the answer:
                 if ($answer === false) {
-                    $this->tableInsert('EVENT_CALL_END', date('Y-m-d H:i:s', strtotime('+2 minutes')), $caller, $reciever);
+                    
+                    // If reciever did not answer, send proper event:
+                    $this->tableInsert('EVENT_CALL_END', date($time, strtotime('+'.rand(20, 60).' seconds')), $caller, $reciever);
+                    
                 } else {
-                    $this->tableInsert('EVENT_CALL_ESTABLISHED', date('Y-m-d H:i:s', strtotime('+1 minutes')), $caller, $reciever);
-                    $this->tableInsert('EVENT_CALL_END', date('Y-m-d H:i:s', strtotime('+15 minutes')), $caller, $reciever);
+                    
+                    // Otherwise randomize talking duration:
+                    $this->tableInsert('EVENT_CALL_ESTABLISHED', date($time, strtotime('+'.rand(20, 60).' seconds')), $caller, $reciever);
+                    $this->tableInsert('EVENT_CALL_END', date($time, strtotime('+'.rand(1, 5).' minutes')), $caller, $reciever);
                 }
-                $this->tableInsert('EVENT_HANG_UP', date('Y-m-d H:i:s', strtotime('+15 minutes +3 seconds')), $caller, $reciever);
+                
+                // Caller hangs up the phone:
+                $this->tableInsert('EVENT_HANG_UP', date($time, strtotime('+5 minutes')), $caller, $reciever);
             }
         }
     }
     
+    // Table fields filling method:
     private function tableInsert($event, $time, $caller, $reciever)
     {
         $sql = "INSERT INTO T_PHONE_RECORDS (RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER) 
