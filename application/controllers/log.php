@@ -6,7 +6,6 @@ class Log extends CI_Controller
         parent::__construct();
         $this->load->library('Table');
         $this->load->helper('url');
-        $this->load->helper('date');
         $this->load->model('Data');
     }
     

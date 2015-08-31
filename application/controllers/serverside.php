@@ -6,7 +6,6 @@ class Serverside extends CI_Controller
     {
         parent::__construct();
         $this->load->database();
-        $this->load->helper('date');
     }
     
     // Main log processing method:
@@ -66,7 +65,7 @@ class Serverside extends CI_Controller
             foreach ($query->result() as $row) {
                 
                 $caller = $row->CALLER;
-                $event = $row->RECORD_EVENT_ID;
+                $event = $this->getCallEvent($row->RECORD_EVENT_ID);
                 $reciever = $row->RECIEVER;
                 $date = date("d.m.Y H:i:s", strtotime($row->RECORD_DATE));
                 
@@ -93,7 +92,7 @@ class Serverside extends CI_Controller
             
             $title = $call_data[0];
             $caller = $row->CALLER;
-            $event = $row->RECORD_EVENT_ID;
+            $event = $this->getCallEvent($row->RECORD_EVENT_ID);
             $reciever = $row->RECIEVER;
             $date = date("d.m.Y H:i:s", strtotime($row->RECORD_DATE));
             
@@ -197,6 +196,20 @@ class Serverside extends CI_Controller
                 $title = "$caller: Cancelled call";
         }        
         return $title;
+    }
+    
+    // Call event type definition method:
+    private function getCallEvent($event)
+    {
+        switch ($event) {
+            case 'EVENT_PICK_UP': $event = 'Pick-up'; break;
+            case 'EVENT_DIAL': $event = 'Dialling'; break;
+            case 'EVENT_CALL_ESTABLISHED': $event = 'Call Established'; break;
+            case 'EVENT_CALL_END': $event = 'Call End'; break;
+            case 'EVENT_HANG_UP': $event = 'Hang-up'; break;
+            default: $event = 'Hang-up';
+        }        
+        return $event;
     }
     
     // Send JSON object method (for main table):
