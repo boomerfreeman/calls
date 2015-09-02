@@ -70,17 +70,17 @@ class Data extends CI_Model
                 if ($answer === false) {
                     
                     // If reciever did not answer, send proper event:
-                    $this->tableInsert('EVENT_CALL_END', $this->genDateTime($date, 'PT' . rand(20,59) . 'S'), $caller, $reciever);
+                    $this->tableInsert('EVENT_CALL_END', $this->genDateTime($date, 'PT' . rand(20,30) . 'S'), $caller, $reciever);
                     
                 } else {
                     
                     // Otherwise randomize talking duration:
                     $this->tableInsert('EVENT_CALL_ESTABLISHED', $this->genDateTime($date, 'PT' . rand(20,59) . 'S'), $caller, $reciever);
-                    $this->tableInsert('EVENT_CALL_END', $this->genDateTime($date, 'PT10M'), $caller, $reciever);
+                    $this->tableInsert('EVENT_CALL_END', $this->genDateTime($date, 'PT' . rand(19,20) . 'M'), $caller, $reciever);
                 }
                 
                 // Caller hangs up the phone:
-                $this->tableInsert('EVENT_HANG_UP', $this->genDateTime($date, 'PT10M' . rand(1,59) . 'S'), $caller, $reciever);
+                $this->tableInsert('EVENT_HANG_UP', $this->genDateTime($date, 'PT' . rand(1,15) . 'S'), $caller, $reciever);
             }
         }
     }
@@ -88,11 +88,12 @@ class Data extends CI_Model
     // Table fields filling method:
     private function tableInsert($event, $time, $caller, $reciever)
     {
-        $sql = "INSERT INTO T_PHONE_RECORDS (RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER) 
-                VALUES (?, ?, ?, ?)";
+        $sql = 'INSERT INTO T_PHONE_RECORDS (RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER) 
+                VALUES (?, ?, ?, ?)';
         $this->db->query($sql, array($event, $time, $caller, $reciever));
     }
     
+    // Time addition method:
     private function genDateTime($date, $addition)
     {
         $date->add(new DateInterval($addition));

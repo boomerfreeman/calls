@@ -19,7 +19,7 @@ class Serverside extends CI_Controller
         $search = htmlspecialchars($_GET['search']['value']);
         
         // Get number of all rows in the table:
-        $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS");
+        $query = $this->db->query('SELECT * FROM T_PHONE_RECORDS');
         $rows = $query->num_rows;
         
         // Define which column is set to change order:
@@ -65,9 +65,9 @@ class Serverside extends CI_Controller
             foreach ($query->result() as $row) {
                 
                 $caller = $row->CALLER;
-                $event = $this->getCallEvent($row->RECORD_EVENT_ID)->EVENT_NAME;
+                $event = $this->getCallEvent($row->RECORD_EVENT_ID);
                 $reciever = $row->RECIEVER;
-                $date = date("d.m.Y H:i:s", strtotime($row->RECORD_DATE));
+                $date = date('d.m.Y H:i:s', strtotime($row->RECORD_DATE));
                 
                 $data[] = array($caller, $event, $reciever, $date);
             }
@@ -92,9 +92,9 @@ class Serverside extends CI_Controller
             
             $title = $call_data[0];
             $caller = $row->CALLER;
-            $event = $this->getCallEvent($row->RECORD_EVENT_ID)->EVENT_NAME;
+            $event = $this->getCallEvent($row->RECORD_EVENT_ID);
             $reciever = $row->RECIEVER;
-            $date = date("d.m.Y H:i:s", strtotime($row->RECORD_DATE));
+            $date = date('d.m.Y H:i:s', strtotime($row->RECORD_DATE));
             
             $data[] = array($title, $caller, $event, $reciever, $date);
         }
@@ -118,8 +118,8 @@ class Serverside extends CI_Controller
                 $reciever = $row->RECIEVER;
                 $call_data = $this->getCallData($modal_caller, $reciever);
                 
-                $date = date("d.m.Y H:i:s", strtotime($row->RECORD_DATE));
-                $duration = '15:00';
+                $date = date('d.m.Y H:i:s', strtotime($row->RECORD_DATE));
+                $duration = $this->getTalkDuration($row->CALLER, $row->RECIEVER);
                 $title = $call_data[0];
                 
                 $data[] = array($date, $duration, $reciever, $title);
@@ -130,8 +130,8 @@ class Serverside extends CI_Controller
             // Otherwise set call data:
             $row = $call_data[1]->row();
             
-            $date = date("d.m.Y H:i:s", strtotime($row->RECORD_DATE));
-            $duration = '10:00';
+            $date = date('d.m.Y H:i:s', strtotime($row->RECORD_DATE));
+            $duration = $this->getTalkDuration($row->CALLER, $row->RECIEVER);
             $reciever = $row->RECIEVER;
             $title = $call_data[0];
             
@@ -150,9 +150,9 @@ class Serverside extends CI_Controller
             $reciever = false;
         }
         
-        $sql = "SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
+        $sql = 'SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
                 FROM T_PHONE_RECORDS 
-                WHERE CALLER = ? AND RECIEVER = ?";
+                WHERE CALLER = ? AND RECIEVER = ?';
         
         $query = $this->db->query($sql, array($caller, $reciever));
         
@@ -201,24 +201,45 @@ class Serverside extends CI_Controller
     // Call event type definition method:
     private function getCallEvent($event)
     {
-        $sql = "SELECT EVENT_NAME 
+        $sql = 'SELECT EVENT_NAME 
                 FROM T_EVENT_TYPE 
-                WHERE EVENT_ID = ?";
+                WHERE EVENT_ID = ?';
         
         $query = $this->db->query($sql, $event);
         
         $row = $query->row();
         
-        return $row;
+        return $row->EVENT_NAME;
+    }
+    
+    // Talk duration counting method:
+    private function getTalkDuration($caller, $reciever)
+    {
+        $sql = "SELECT RECORD_DATE 
+                FROM T_PHONE_RECORDS 
+                WHERE CALLER = ? AND RECIEVER = ? AND RECORD_EVENT_ID = 'EVENT_PICK_UP' 
+                UNION SELECT RECORD_DATE 
+                FROM T_PHONE_RECORDS 
+                WHERE CALLER = ? AND RECIEVER = ? AND RECORD_EVENT_ID = 'EVENT_HANG_UP'";
+        
+        $query = $this->db->query($sql, array($caller, $reciever, $caller, $reciever));
+        
+        $call_start = $query->first_row()->RECORD_DATE;
+        $call_end = $query->last_row()->RECORD_DATE;
+        
+        // Count talk duration in minutes:
+        $count = gmdate('H:i:s', strtotime($call_end) - strtotime($call_start));
+        
+        return $count;
     }
     
     // Send JSON object method (for main table):
     private function sendServerJSON($draw, $rows, $data)
     {
-        $json = array("draw" => $draw,
-                      "recordsTotal" => $rows,
-                      "recordsFiltered" => $rows,
-                      "data" => $data);
+        $json = array('draw' => $draw,
+                      'recordsTotal' => $rows,
+                      'recordsFiltered' => $rows,
+                      'data' => $data);
         
         echo json_encode($json);
         exit;
@@ -227,7 +248,7 @@ class Serverside extends CI_Controller
     // Send JSON object method (for modal window):
     private function sendModalJSON($data)
     {
-        $json = array("data" => $data);
+        $json = array('data' => $data);
         echo json_encode($json);
         exit;
     }

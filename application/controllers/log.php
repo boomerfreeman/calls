@@ -42,11 +42,9 @@ class Log extends CI_Controller
             'table_open'    =>      '<table class="table table-striped table-hover" id="log">'));
         
         // Generate table with first 10 rows:
-        $query = $this->db->query("SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
-                                   FROM T_PHONE_RECORDS LIMIT 0,10");
+        $query = $this->db->query('SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
+                                   FROM T_PHONE_RECORDS LIMIT 0,10');
         $data['table'] = $this->table->generate($query);
-        
-        //$this->setWinConfig();
         
         // Set modal window configuration and generate data:
         $this->table->set_heading($modal_title, $table_caller, $table_event, $table_reciever, $table_timestamp);
