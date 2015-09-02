@@ -170,7 +170,7 @@ class Serverside extends CI_Controller
         $sql = "SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
                 FROM T_PHONE_RECORDS 
                 WHERE CALLER = ? AND RECORD_EVENT_ID = 'EVENT_PICK_UP'
-                ORDER BY RECORD_DATE DESC";
+                ORDER BY RECORD_DATE ASC";
         
         $query = $this->db->query($sql, array($caller, $reciever));
         $call_num = $query->num_rows;
