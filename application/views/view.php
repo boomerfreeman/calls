@@ -28,7 +28,7 @@
                 $("#extend").dialog({autoOpen: false});
                 
                 // If table row is clicked:
-                $("#log tbody").on("click", "tr", function () {
+                $("#log>tbody").on("click", "tr", function () {
                     
                     // Get caller and reciever numbers:
                     var log_caller = $(this).find("td").eq(0).html();
@@ -52,27 +52,48 @@
                         "filter":   false,
                         "destroy":  true,
                         "paging":   false,
-                        "ajax":     "<?=base_url('serverside/extendLog')?>" + "/" + log_caller + "/" + log_reciever + "/"
+                        "ajax":     "<?=base_url('serverside/extendLog')?>" + "/" + log_caller + "/"
+                    });
+                    
+                    // Set title for a call:
+                    $.ajax({
+                        url: "<?=base_url('serverside/modalLog')?>" + "/" + log_caller + "/" + log_reciever + "/",
+                        type: "GET",
+                        dataType: "JSON",
+                        async: false,
+                        success: function (rows) {
+                            
+                            // Create JSON string and count its length:
+                            JSON.stringify(rows);
+                            var count = rows.data.length;
+                            
+                            switch (count) {
+                                case 1: call_title = 'Cancelled call'; break;
+                                case 4: call_title = 'Non-dialled call'; break;
+                                case 5: call_title = 'Regular call'; break;
+                                default: call_title = 'Cancelled call';
+                            }
+                        }
                     });
                     
                     // Set modal windows options:
                     $("#modal").dialog("option", {
-                        "minHeight": 300,
+                        "minHeight": 400,
                         "minWidth": 700,
-                        "maxHeight": 500,
-                        "maxWidth": 700,
+                        "maxHeight": 600,
+                        "maxWidth": 750,
                         "position": {
                             my: "top-25",
                             at: "left",
                             of: "#heading"
                         },
-                        "title": "Number " + log_caller + " call to " + log_reciever
+                        "title": "Number " + log_caller + " : " + call_title
                     });
                     
                     $("#extend").dialog("option", {
                         "minHeight": 300,
                         "minWidth": 650,
-                        "maxHeight": 500,
+                        "maxHeight": 400,
                         "maxWidth": 700,
                         "position": {
                             my: "top-25",

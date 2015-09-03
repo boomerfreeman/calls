@@ -39,8 +39,8 @@ class Serverside extends CI_Controller
         }
         
         // If search form is active:
-        if ( ! empty ($search))
-        {
+        if ( ! empty ($search)) {
+            
             // Search data in the table:
             $query = $this->db->query("SELECT * FROM T_PHONE_RECORDS 
                                        WHERE RECORD_ID LIKE '%$search%' 
@@ -59,8 +59,8 @@ class Serverside extends CI_Controller
         $limit = $query->num_rows;
         
         // If Database is not empty:
-        if ($limit > 0)
-        {
+        if ($limit > 0) {
+            
             // Retrieve and send call log:
             foreach ($query->result() as $row) {
                 
@@ -96,7 +96,7 @@ class Serverside extends CI_Controller
             $reciever = $row->RECIEVER;
             $date = date('d.m.Y H:i:s', strtotime($row->RECORD_DATE));
             
-            $data[] = array($title, $caller, $event, $reciever, $date);
+            $data[] = array($caller, $event, $reciever, $date);
         }
         
         // Send json object:
@@ -104,10 +104,10 @@ class Serverside extends CI_Controller
     }
     
     // Extended modal window log processing method:
-    public function extendLog($modal_caller, $modal_reciever)
+    public function extendLog($modal_caller)
     {
         // Get call log for the caller and check how much calls were made:
-        $call_data = $this->getExtendedCallData($modal_caller, $modal_reciever);
+        $call_data = $this->getExtendedCallData($modal_caller);
         
         // If caller made more than one call:
         if ($call_data[2] > 1) {
@@ -159,41 +159,41 @@ class Serverside extends CI_Controller
         $call_num = $query->num_rows;
         
         // Set title for every call:
-        $title = $this->getCallTitle($call_num, $caller);
+        $title = $this->getCallTitle($call_num);
         
         return array($title, $query);
     }
     
     // Extended call log collection method:
-    private function getExtendedCallData($caller, $reciever)
+    private function getExtendedCallData($caller)
     {
         $sql = "SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
                 FROM T_PHONE_RECORDS 
                 WHERE CALLER = ? AND RECORD_EVENT_ID = 'EVENT_PICK_UP'
                 ORDER BY RECORD_DATE ASC";
         
-        $query = $this->db->query($sql, array($caller, $reciever));
+        $query = $this->db->query($sql, array($caller));
         $call_num = $query->num_rows;
         
         // Set call resolution for every call:
-        $title = $this->getCallTitle($call_num, $caller);
+        $title = $this->getCallTitle($call_num);
         
         // Return title, data and number of calls:
         return array($title, $query, $call_num);
     }
     
-    // Call resolution definition method:
-    private function getCallTitle($num, $caller)
+    // Call title setting method:
+    private function getCallTitle($num)
     {
         switch ($num) {
-            case '2':
-                $title = "$caller: Cancelled call"; break;
+            case '1':
+                $title = "Cancelled call"; break;
             case '4':
-                $title = "$caller: Non-dialled call"; break;
+                $title = "Non-dialled call"; break;
             case '5':
-                $title = "$caller: Regular call"; break;
+                $title = "Regular call"; break;
             default:
-                $title = "$caller: Cancelled call";
+                $title = "Cancelled call";
         }        
         return $title;
     }

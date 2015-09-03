@@ -47,7 +47,7 @@ class Log extends CI_Controller
         $data['table'] = $this->table->generate($query);
         
         // Set modal window configuration and generate data:
-        $this->table->set_heading($modal_title, $table_caller, $table_event, $table_reciever, $table_timestamp);
+        $this->table->set_heading($table_caller, $table_event, $table_reciever, $table_timestamp);
         $this->table->set_template(array(
             'table_open'    =>      '<table class="table table-striped table-hover" id="modal">'));
         $data['modal'] = $this->table->generate();
