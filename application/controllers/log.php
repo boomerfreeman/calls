@@ -38,43 +38,31 @@ class Log extends CI_Controller
         
         // Pre-set main table configuration:
         $this->table->set_heading($table_caller, $table_event, $table_reciever, $table_timestamp);
-        $this->table->set_template(array(
-            'table_open'    =>      '<table class="table table-striped table-hover" id="log">'));
+        $this->table->set_template(array('table_open' => '<table class="table table-striped table-hover" id="log">'));
         
         // Generate table with first 10 rows:
-        $query = $this->db->query('SELECT CALLER, RECORD_EVENT_ID, RECIEVER, RECORD_DATE 
-                                   FROM T_PHONE_RECORDS LIMIT 0,10');
+        $query = $this->Data->getRecords();
         $data['table'] = $this->table->generate($query);
         
         // Set modal window configuration and generate data:
         $this->table->set_heading($table_caller, $table_event, $table_reciever, $table_timestamp);
-        $this->table->set_template(array(
-            'table_open'    =>      '<table class="table table-striped table-hover" id="modal">'));
+        $this->table->set_template(array('table_open' => '<table class="table table-striped table-hover" id="modal">'));
         $data['modal'] = $this->table->generate();
         
         // Set extended modal window configuration and generate data:
         $this->table->set_heading($table_timestamp, $modal_duration, $table_reciever, $modal_title);
-        $this->table->set_template(array(
-            'table_open'    =>      '<table class="table table-striped table-hover" id="extend">'));
+        $this->table->set_template(array('table_open' => '<table class="table table-striped table-hover" id="extend">'));
         $data['extend'] = $this->table->generate();
         
         // Load view:
         $this->load->view('view', $data);
     }
     
-    // Set russian language:
-    public function ru()
+    // Set language:
+    public function setLang($lang)
     {
-        setcookie('lang', 'ru', time() + (86400 * 30), "/");
-        $this->lang->load('text', 'ru');
-        redirect(base_url());
-    }
-    
-    // Set english language:
-    public function en()
-    {
-        setcookie('lang', 'en', time() + (86400 * 30), "/");
-        $this->lang->load('text', 'en');
+        setcookie('lang', $lang, time() + (86400 * 30), "/");
+        $this->lang->load('text', $lang);
         redirect(base_url());
     }
 }

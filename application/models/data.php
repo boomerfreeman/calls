@@ -8,6 +8,102 @@ class Data extends CI_Model
         $this->load->database();
     }
     
+    // Row number collection method:
+    public function getRowsCount()
+    {
+        $query = $this->db->select('COUNT(*) as Num')->from('T_PHONE_RECORDS')->get();
+        
+        $count = $query->row()->Num;
+        
+        return $count;
+    }
+    
+    // First 10 records collection method:
+    public function getRecords()
+    {
+        $query = $this->db->limit(10)
+                ->select('CALLER, RECORD_EVENT_ID, RECORD_DATE, RECIEVER')
+                ->from('T_PHONE_RECORDS')
+                ->get();
+        
+        return $query;
+    }
+    
+    // Data searching method:
+    public function getSearchValue($search)
+    {
+        $query = $this->db->select('e.EVENT_NAME, r.RECORD_DATE, r.CALLER, r.RECIEVER')
+                ->from('T_PHONE_RECORDS r')
+                ->join('T_EVENT_TYPE e', 'r.RECORD_EVENT_ID = e.EVENT_ID', 'inner')
+                ->like('r.RECORD_ID', $search)
+                ->or_like('e.EVENT_NAME', $search)
+                ->or_like('r.RECORD_DATE', $search)
+                ->or_like('r.CALLER', $search)
+                ->or_like('r.RECIEVER', $search)
+                ->get();
+        
+        return $query;
+    }
+    
+    // Column order setting method:
+    public function setColumnOrder($column, $order, $length, $start)
+    {
+        $query = $this->db->select('e.EVENT_NAME, r.RECORD_DATE, r.CALLER, r.RECIEVER')
+                ->from('T_PHONE_RECORDS r')
+                ->join('T_EVENT_TYPE e', 'r.RECORD_EVENT_ID = e.EVENT_ID', 'inner')
+                ->order_by($column, $order)
+                ->limit($length, $start)
+                ->get();                    
+        
+        return $query;
+    }
+    
+    // Call data collection method:
+    public function getCallData($caller, $reciever)
+    {
+        $query = $this->db->select('e.EVENT_NAME, r.RECORD_DATE, r.CALLER, r.RECIEVER')
+                ->from('T_PHONE_RECORDS r')
+                ->join('T_EVENT_TYPE e', 'r.RECORD_EVENT_ID = e.EVENT_ID', 'inner')
+                ->where('r.CALLER', $caller)
+                ->where('r.RECIEVER', $reciever)
+                ->order_by('r.RECORD_DATE')
+                ->get();
+        
+        return $query;
+    }
+    
+    // Extended call log collection method:
+    public function getExtendedCallData($caller)
+    {
+        $query = $this->db->select('RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER')
+                ->from('T_PHONE_RECORDS')
+                ->where('CALLER', $caller)
+                ->where('RECORD_EVENT_ID', 'EVENT_PICK_UP')
+                ->get();
+        
+        return $query;
+    }
+    
+    // Talk duration counting method:
+    public function getTalkDuration($caller, $reciever)
+    {
+        $events = array('EVENT_PICK_UP', 'EVENT_HANG_UP');
+        
+        $query = $this->db->select('RECORD_DATE')
+                ->from('T_PHONE_RECORDS')
+                ->where('CALLER', $caller)
+                ->where('RECIEVER', $reciever)
+                ->where_in('RECORD_EVENT_ID', $events)->get();
+        
+        $call_start = $query->first_row()->RECORD_DATE;
+        $call_end = $query->last_row()->RECORD_DATE;
+        
+        // Count talk duration in minutes:
+        $count = gmdate('H:i:s', strtotime($call_end) - strtotime($call_start));
+        
+        return $count;
+    }
+    
     // Generate new data for the table:
     public function genTable($quantity)
     {
@@ -16,7 +112,7 @@ class Data extends CI_Model
         
         // Create new table:
         $this->db->query(
-                'CREATE TABLE T_PHONE_RECORDS (
+                'CREATE TABLE IF NOT EXISTS T_PHONE_RECORDS (
                     RECORD_ID int(11) NOT NULL AUTO_INCREMENT,
                     RECORD_EVENT_ID varchar(22) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
                     RECORD_DATE timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -42,8 +138,8 @@ class Data extends CI_Model
         for ($i=0; $i < $num; $i++) {
             
             // Randomize caller, reciever numbers and date:
-            $caller = '555555' . rand(10,99);
-            $reciever = '555555' . rand(10,99);
+            $caller = '5' . rand(1000000,9999999);
+            $reciever = '5' . rand(1000000,9999999);
             $date = new DateTime('2015-01-' . rand(1,30) . ' ' . rand(0,24) . ':' . rand(0,59) . ':' . rand(0,59));
             
             // Caller picks up the phone:
@@ -86,11 +182,16 @@ class Data extends CI_Model
     }
     
     // Table fields filling method:
-    private function tableInsert($event, $time, $caller, $reciever)
+    private function tableInsert($event, $date, $caller, $reciever)
     {
-        $sql = 'INSERT INTO T_PHONE_RECORDS (RECORD_EVENT_ID, RECORD_DATE, CALLER, RECIEVER) 
-                VALUES (?, ?, ?, ?)';
-        $this->db->query($sql, array($event, $time, $caller, $reciever));
+        $data = array(
+            'RECORD_EVENT_ID' => $event,
+            'RECORD_DATE' => $date,
+            'CALLER' => $caller,
+            'RECIEVER' => $reciever
+        );
+        
+        $this->db->insert('T_PHONE_RECORDS', $data);
     }
     
     // Time addition method:
